@@ -1,0 +1,56 @@
+*** Settings ***
+Documentation     KEYWORD-DRIVEN tests for the User Registration (Signup) flow.
+...               Demonstrates: Page Object Model, User Defined Keywords, Suite/Test
+...               Setup & Teardown, and dynamically generated test data so the suite
+...               can be re-run any number of times without clashing with accounts
+...               created by earlier runs.
+Resource          ../Resources/variables.resource
+Resource          ../Resources/common.resource
+Resource          ../PageObjects/HomePage.resource
+Resource          ../PageObjects/LoginPage.resource
+Resource          ../PageObjects/SignupPage.resource
+Suite Setup       Open Application
+Suite Teardown    Close Application
+Test Teardown     Take Screenshot On Failure
+
+*** Test Cases ***
+Register A New User Successfully
+    [Documentation]    Creates a brand new account with a unique, dynamically generated
+    ...                email address, confirms the "Account Created!" message, then
+    ...                deletes the account again so the suite leaves no data behind.
+    [Tags]    registration    smoke    positive
+    ${email}=    Generate Unique Email    prefix=newuser
+    Open Login Page
+    Input Signup Name And Email    Robot Framework User    ${email}
+    Click Signup Button
+    Wait Until Page Contains    ENTER ACCOUNT INFORMATION    timeout=${TIMEOUT}
+    Fill Mandatory Account Details    password=Test@1234    day=10    month=5    year=1995
+    Fill Address Details    first_name=Robot    last_name=Tester    address=221B Baker Street
+    ...    state=West Bengal    city=Kolkata    zipcode=700001    mobile=9876543210
+    Submit Create Account
+    Account Should Be Created
+    Click Continue After Account Creation
+    User Should Be Logged In As    Robot Framework User
+    [Teardown]    Run Keywords    Delete Test Account    AND    Take Screenshot On Failure
+
+Registering With An Already Used Email Should Fail
+    [Documentation]    NEGATIVE test: signing up twice with the same email address must
+    ...                be rejected by the application with a clear error message.
+    [Tags]    registration    negative
+    ${email}=    Generate Unique Email    prefix=dupe
+    Open Login Page
+    Input Signup Name And Email    Duplicate User    ${email}
+    Click Signup Button
+    Wait Until Page Contains    ENTER ACCOUNT INFORMATION    timeout=${TIMEOUT}
+    Fill Mandatory Account Details    password=Test@1234    day=1    month=1    year=1990
+    Fill Address Details    first_name=Dup    last_name=User    address=Test Address
+    ...    state=WB    city=Kolkata    zipcode=700001    mobile=9876543211
+    Submit Create Account
+    Account Should Be Created
+    Click Continue After Account Creation
+    Logout From Application
+    Open Login Page
+    Input Signup Name And Email    Duplicate User    ${email}
+    Click Signup Button
+    Signup Error Should Be Displayed
+    [Teardown]    Cleanup Duplicate Test Account    ${email}    Test@1234
