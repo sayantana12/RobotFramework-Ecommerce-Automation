@@ -1,0 +1,12 @@
+[
+  "assignment6.py::test_windows_tabs_and_iframe",
+  "assignment6.py::test_windows_tabs_and_iframes",
+  "assignment7.py::test_locked_user_error",
+  "assignment7.py::test_logout_flow",
+  "assignment7.py::test_valid_login",
+  "assignment9.py::test_failure_screenshot_demo",
+  "assignment9.py::test_invalid_password",
+  "assignment9.py::test_invalid_username",
+  "assignment9.py::test_logout_after_valid_login",
+  "assignment9.py::test_valid_login"
+]
